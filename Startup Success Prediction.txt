@@ -1,0 +1,2979 @@
+8/23/23, 11:44 PM
+
+
+Startup Success Prediction - Jupyter Notebook
+
+import pandas as pd
+
+import numpy as np
+
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+sns.set_theme(color_codes=True)
+pd.set_option( "display .max_columns" , None)
+
+df = pd.read_csv('startup data.csv')
+df.head()
+
+wding_year age first milestone year age last milestone year relationships funding rounds funding total usd milestones state _code.1 is
+
+3.0027 4.6685 6.7041 3 3 375000 3 CA
+9.9973 7.0055 7.0055 9 4 40100000 1 CA
+1.0329 1.4575 2.2055 5 1 2600000 2 CA
+5.3151 6.0027 6.0027 5 3 40000000 1 CA
+1.6685 0.0384 0.0384 2 2 1300000 1 CA
+
+4 »
+
+Data Preprocessing Part 1
+
+df.drop(columns = ['Unnamed: 8e', 'id', 'Unnamed: 6', 'name'], inplace=True)
+df.shape
+
+(923, 45)
+
+*Check the number of unique value from all of the object datatype
+df.select_dtypes(include="object").nunique()
+
+state_code 35
+zip_code 382
+city 221
+founded_at 217
+closed_at 202
+
+first_funding_at 585
+last _funding_at 680
+
+state_code.1 35
+category_code 35
+object_id 922
+status 2
+
+dtype: int64
+
+4 Drop column with unique value higher than 100 except for date time column
+df.drop(columns = ['zip_code', 'city', "object _id'], inplace = True)
+df.shape
+
+(923, 42)
+
+$4 Extract only year from all of date time column and change the datatype into integer except null value
+df['founded_at'] = df['founded_at'].apply(lambda x: int(x[-4:].lstrip('0')) if isinstance(x, str) else np.nan)
+df['closed_at'] = df['closed_at'].apply(lambda x: int(x[-4:].Istrip('0')) if isinstance(x, str) else np.nan)
+df['first funding _at'] = df['first_funding_at'].apply(lambda x: int(x[-4:].Istrip('0')) if isinstance(x, str) |
+df['last funding at'] = df['last_ funding _at'].apply(lambda x: int(x[-4:].Istrip('0')) if isinstance(x, str) el:
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 1/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [8]: df.head()
+
+puta: state_code latitude longitude labels founded at closed at first funding_at last funding at age first funding year age last fu
+[1 CA 42.358880 -71.056820 1 NaN NaN 2009 2010 2.2493
+1 CA 37.238916 -121.973718 1 NaN NaN 2005 2009 5.1260
+2 CA 32.901049 -117.192656 1 NaN NaN 2010 2010 1.0329
+3 CA 37.320309 -122.050040 1 NaN NaN 2005 2007 3.1315
+4 CA 37.779281 -122.419236 0 NaN 2012.0 2010 2012 0.0000
+
+In [9]: Check the number of unique value from all of the object datatype
+df.select_dtypes (include="object").nunique()
+
+Out[9]: state_code 35
+state_code.1 35
+category_code 35
+status 2
+
+dtype: int64
+
+Segment the Category Code into Smaller Unique Value
+
+In [10]: df.category_code.unique()
+
+Out[10]: array(['music', 'enterprise', 'web', 'software', 'games_video',
+"network hosting", 'finance', 'mobile', 'education',
+"public_relations", 'security', 'other', "photo _video', "hardware",
+"ecommerce", "advertising", 'travel', '"fashion', "analytics",
+"consulting", 'biotech', '"cleantech", "search", "semiconductor",
+"social", 'medical', 'automotive', 'messaging"', "manufacturing",
+'hospitality', 'news', 'transportation', 'sports', 'real estate',
+'health'], dtype=object)
+
+In [11]: def segment_ category (category):
+
+if category in ['music', 'games_video', 'photo video', 'entertainment']:
+return "Entertainment"
+
+elif category in ['enterprise', 'web', 'software', 'network_hosting", "hardware", "tech']:
+return 'Technology'
+
+elif category in ['finance', 'mobile', 'ecommerce', "advertising", 'business']:
+return "Business"
+
+elif category in ['education', 'public_relations', 'security']:
+return "Education 4% PR'
+
+elif category in ['travel', 'fashion', 'hospitality', 'transportation']:
+return 'Lifestyle'
+
+elif category in ['analytics", 'consulting']:
+return "Consulting 4 Analytics"
+
+elif category in ['biotech", 'cleantech', 'search', 'semiconductor', 'medical", 'health']:
+return "Science 8% Health"
+
+else:
+return "Other'
+
+4 Apply the segmentation function to each category code
+df['category_segment'] = df['category_code'].apply(segment category)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 2/44
+8/23/23, 11:44 PM
+
+In [13]: plt.Figure(figsize=(10,5))
+
+Startup Success Prediction - Jupyter Notebook
+
+df['category_segment' ].value_counts() .plot (kind="bar")
+
+Out[13]: <AxesSubplot:>
+
+400
+
+300
+
+200
+
+; E
+e
+
+a)
+> un 5 rl 5 ae un o
+3 E | 1] L£ a = >
+re] £ 2 = 5 os = a
+[= un a 5 [= Ea po
+$ a a T 5 < 3
+9 8 E 5 E
+5 ú 3 2
+[S] Lu =—
+En E
+un
+=
+[e]
+[+]
+In [14]: df.head()
+out[14]:
+1ds funding total usd milestones state _code.1 Is _CA lIs_NY lIs_MA ls TX ls otherstate category code l|s_software |Is_web ls mobile
+3 375000 3 CA 1 0 0 0 [) music o) [o] C
+4 40100000 1 CA 1 [o] [1] [o] [e] enterprise [o] 1) C
+1 2600000 2 CA 1 0 1) 0 [e] web [o] 1 C
+3 40000000 1 CA 1 0 1) [o] [e] software 1 (1 [a
+2 1300000 1 CA 1 [o] (1) [o] [e] games_video [o] 0 C
+< »
+In [15]: 4 Drop category_code column
+df.drop(columns = 'category code", inplace=True)
+df.head()
+Out[15]:
+CA is_NY is_MA is TX is otherstate is_software is_web is mobile is enterprise is advertising is_gamesvideo is_ecommerce is_bii
+1 0 0 [e] 0 [e] o 0 o 0 0 0
+1 0 0 0 0 0 [1] 0 1 0 0 0
+1 0 0 0 0 o) 1 (1 [1] 0 0 0
+1 [e [o] [e 0 1 (1) 0 [a] [o] 0 0
+1 [e] 0 [e] 0 [e] a) 0 0 0 1 0
+p] »
+Exploratory Data Analysis
+localhost:8889/notebooks/Startup Success Prediction.ipynb 3/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [17]: 4% Get the names of all columns with data type 'object' (categorical columns)
+cat_vars = df.select dtypes(include="object").columns.tolist()
+
+* Create a figure with subplots
+
+num_cols = len(cat_vars)
+
+num_rows = (num_cols + 2) // 3
+
+fig, axs = plt.subplots(nrows=num rows, ncols=3, figsize=(15, 5*num_rows))
+axs = axs.flatten()
+
+* Create a countplot for the top 5 values of each categorical variable using Seaborn
+for i, var in enumerate(cat_vars):
+
+top_values = df[var].value counts().nlargest(5).index
+
+filtered df = df[df[var].isin(top_values)]
+
+sns.countplot(x=var, data=filtered_df, ax=axs[i])
+
+axs[i].set_title(var)
+
+axs[1].tick params (axis="x", rotation=960)
+
+* Remove any extra empty subplots if needed
+if num_cols < len(axs):
+for i in range(num_cols, len(axs)):
+fig.delaxes(axs[i])
+
+4 Adjust spacing between subplots
+fig.tight_layout()
+
+* Show plot
+p1t.show()
+state_code state_code.1 status
+500 500 600
+400 400 500
+400
+300 300
+5 5 5
+8 8 gr
+200 200
+200
+100 100
+E mE ,
+5 : = E E 5 Es = a E
+
+dosed
+
+state_code state_code.1
+
+acquired
+
+status
+category_segment
+
+400
+300
+E
+z
+8 200
+. L A
+. E Lo
+
+category_segment
+
+Technology
+Business
+Other
+
+Entertainment
+Science 8 Health
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 4/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [19]: 4 Get the names of all columns with data type 'int' or 'float'
+num_vars = df.select dtypes(include=["int', 'float']).columns.tolist()
+
+* Create a figure with subplots
+num_cols = len(num_vars)
+
+num_rows = (num_cols + 2) // 3
+
+fig, axs = plt.subplots(nrows=num rows, ncols=3, figsize=(15, 5*num_rows))
+axs = axs.flatten()
+
+* Create a box plot for each numerical variable using Seaborn
+for i, var in enumerate(num_vars):
+
+sns.boxplot(x=df[var], ax=axs[i])
+
+axs[i].set_title(var)
+
+* Remove any extra empty subplots if needed
+if num_cols < len(axs):
+for i in range(num_cols, len(axs)):
+fig.delaxes(axs[i])
+
+* Adjust spacing between subplots
+fig.tight layout()
+
+4 Show plot
+plt.show()
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 5/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 6/44
+8/23/23, 11:44 PM
+
+latitude longitude
+“ .... hd La CA La . La
+25 30 35 40 45 50 55 60 -120 —100 —80 —60 —0 —20 o 20
+latitude longitude
+founded_at dosed_at
+. * La
+0.0 02 04 06 08 10 2002 2004 2006 2008 2010 2012
+founded_at dosed_at
+last_funding_at age_first_funding_year
+* * |- * ..
+2002 2004 2006 2008 2010 2012 -10 5 o 5 10 15 20
+
+last_funding_at
+
+age_first_milestone_year
+
+age_first_funding_year
+
+age last milestone year
+
+15 —0 5 o 5 10 15 20 25 5
+age_first_milestone_year
+
+funding_rounds
+
+—- * Í L .
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+o 5 10 15 20 25
+
+age_last_milestone_year
+
+funding_total_usd
+
+Startup Success Prediction - Jupyter Notebook
+
+labels
+
+! |
+
+2000
+
+-
+
+o
+
+labels
+
+first_funding_at
+
+2002 2004 2006 2008
+
+first_funding_at
+
+2010 2012
+
+age_last_funding_year
+
+| *.
+
+5 o 5 10 15 20
+age_last_funding_year
+
+relationships
+0000000000000 0 00“ * * La
+10 20 30 40 50 60
+relationships
+milestones
+
+7/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+2 4 6 8 10 o 1 2 3 4 B o 1 2 3 4 5 6 7 8
+funding_rounds funding_total_usd 1e9 milestones
+is_CA is_NY is_MA
+
+. .
+0.0 02 04 0.6 0.8 1.0 0.0 0.2 0.4 0.6 0.8 1.0 0.0 0.2 0.4 0.6 0.8 10
+is_CA is_NY is_MA
+is_TX is_otherstate is_software
+. . .
+00 02 04 06 08 10 0.0 02 0.4 0.6 08 1.0 0.0 02 04 06 08 10
+is_TX is_otherstate is_software
+is_web is_mobile is_enterprise
+* . LA
+00 02 04 06 08 10 00 02 04 06 08 1.0 0.0 02 04 06 08 10
+is_web is_mobile is_enterprise
+is_ advertising is_gamesvideo is_ecommerce
+. . .
+0.0 02 04 0.6 0.8 1.0 0.0 0.2 0.4 0.6 0.8 1.0 0.0 0.2 0.4 0.6 08 10
+is_ advertising is_gamesvideo is_ecommerce
+is_biotech is_consulting is_othercategory
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 8/44
+8/23/23, 11:44 PM
+
+0.0 02 04 0.6 0.8
+is_biotech
+
+has_vC
+
+Startup Success Prediction - Jupyter Notebook
+
+.
+0.0 0.2 0.4 0.6 0.8 1.0 0.0 0.2 0.4 0.6 0.8 10
+is_consulting is_othercategory
+has_angel has_roundA
+
+00 02 04 06 08
+has_vC
+
+has_roundB
+
+00 02 04 06 08
+has_roundB
+
+avg_participants
+
+we... ..
+
+2 4 6 3 10 12 14
+avg_participants
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+00 02 04 06 08 1.0 00 02 04 06 08 10
+has_angel has_roundA
+has_roundC has_roundD
+LL *
+00 02 04 06 08 1.0 0.0 02 04 06 08 10
+has_roundC has_roundD
+is_top500
+.
+0.0 0.2 0.4 0.6 0.8 1.0
+is_tops00
+9/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [20]: %* Get the names of all columns with data type 'int'
+int_vars = df.select dtypes(include=["int', 'float']).columns.tolist()
+
+* Create a figure with subplots
+num_cols = len(int_vars)
+
+num_rows = (num_cols + 2) // 3 £% To make sure there are enough rows for the subplots
+fig, axs = plt.subplots(nrows=num rows, ncols=3, figsize=(15, 5*num_rows))
+
+axs = axs.flatten()
+
+* Create a box plot for each integer variable using Seaborn with hue='"attrition"
+for i, var in enumerate(int_vars):
+
+sns.boxplot(y=var, x='status"', data=df, ax=axs[i])
+
+axs[i].set_title(var)
+
+* Remove any extra empty subplots if needed
+if num_cols < len(axs):
+for i in range(num_cols, len(axs)):
+fig.delaxes(axs[i])
+
+* Adjust spacing between subplots
+fig.tight layout()
+
+4 Show plot
+plt.show()
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 10/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 11/44
+8/23/23, 11:44 PM
+
+latitude
+
+08
+
+o
+>
+
+founded_at
+
+e
+>
+
+0.2
+
+0.0
+
+2010
+
+unding_at
+5
+>
+-]
+
+age first milestone_year
+
+5
+
+ing_rounds
+>
+
+latitude
+La
+La
+*
+.
+La
+La
+acquired
+status
+founded_at
+acquired
+status
+last_funding_at
+La
+acquired
+
+status
+
+age first _milestone_year
+
+La
+acquired
+status
+funding_rounds
+*
+La
+.
+
+—
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+Startup Success Prediction - Jupyter Notebook
+
+longitude
+a , 1.0
+. 0 N +
+08
+—20
+LU
+o 06
+v 0
+É :
+2 60 e!
+- 04
+—80
+02
+$ —100
+. —-120 00
+closed acquired dosed
+status
+cosed_at
+2012 2012
+2010 2010
+5, 2008
+2008 E
+e . 2
+Ea 2 2006
+5 2006 -
+=
+1 2004
+2004
+2002
+2002
+. Lu 2000
+cosed acquired dosed
+status
+age_first_funding_year
+——— +
+20 he 20
+LU
+15 15
+e ! o
+E e
+> 5
+5 El
+5 =s5
+D v
+= «
+U
+o E
+80 80
+—D =D
+—— *
+—-10 10
+dosed acquired dosed
+status
+age_last milestone_year
+Ly E +
+60
+20
+E * 50
+a ns
+, E :
+U — e —. 40
+4 5 —— :
+Fl 10 El
+E E
+pa 5
+8 :
+o 20
+El
+E 0
+10
+- o
++ o
+closed acquired dosed
+status
+1e9 funding_total_usd
+L 8
+5 Le
+y 6
+4
+LA >
+5 5
+. = :
+5: 5
+m z'
+. > 3
+
+labels
+
+acquired closed
+
+status
+
+first funding_at
+
+. —
+
+LJ
+acquired dosed
+status
+age_last_funding_year
+La
+.
+L
+L
+acquired dosed
+status
+relationships
+*
+*
+*
+*
+$
+*
+LU
+E
+L
+acquired dosed
+status
+milestones
+*
+
+12/44
+8/23/23, 11:44 PM
+
+fund
+
+08
+
+02
+
+0.0
+
+0.8
+
+02
+
+0.0
+
+08
+
+0.6
+
+is_web
+
+0.4
+
+02
+
+0.0
+
+08
+
+9
+o
+]
+
+is_advertisin
+Ea
+D
+
+02
+
+0.0
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+acquired
+
+acquired
+
+status
+is_CA
+
+status
+is_TX
+
+dosed
+
+dosed
+
+is_NY
+
+is_otherstate
+
+Startup Success Prediction - Jupyter Notebook
+
+fundir
+
+2
+
+acquired
+status
+
+is_NY
+
+08
+
+06
+
+04
+
+02
+
+dosed
+
+00
+
+acquired
+status
+
+is_otherstate
+
+08
+
+06
+
+04
+
+02
+
+acquired
+
+dosed
+
+is_mobile
+
+00
+
+acquired
+status
+
+is_mobile
+
+08
+
+06
+
+02
+
+closed
+
+dosed
+
+acquired
+
+status
+
+is_advertising
+
+dosed
+
+ls_gamesvideo
+
+00
+
+acquired
+status
+
+is_gamesvideo
+
+08
+
+o
+>
+
+o
+re
+
+02
+
+dosed
+
+acquired
+
+status
+
+is_biotech
+
+dosed
+
+00
+
+acquired
+status
+
+is_consulting
+
+dosed
+
+E
+3
+
+08
+
+06
+
+is_MA
+
+04
+
+02
+
+0.0
+
+068
+
+06
+
+is_software
+
+02
+
+00
+
+08
+
+prise
+>
+>
+
+is_enter
+o
+UN
+
+02
+
+0.0
+
+08
+
+is_ecommerce
+E=
+-
+
+o
+ye
+
+02
+
+0.0
+
+acquired closed
+status
+is_MA
+» .
+acquired dosed
+status
+is_software
+. .
+acquired dosed
+status
+is_enterprise
+. .
+acquired closed
+status
+is_ecommerce
+* .
+acquired cosed
+
+status
+
+is_othercategory
+
+13/44
+8/23/23, 11:44 PM
+
+Startup Success Prediction - Jupyter Notebook
+
+1.0 * LU 1.0 * La
+08 08
+- 06 206
+5
+2 04 04
+0.2 02
+0.0 00
+acquired dosed acquired dosed
+status status
+has_VC has_angel
+1.0 10 .
+0.8 08
+0.6 ] 0.6
+[e] D
+> 5
+Ea U
+: 8
+04 4-04
+02 02
+00 00
+acquired cdosed acquired dosed
+status status
+has_roundB has_roundC
+10 10 .
+08 08
+m6 o 06
+Ei E]
+E E
+E 8
+U 1
+ra a
+Sos S04
+0.2 0.2
+00 00
+acquired dosed acquired dosed
+status status
+avg_participants is_top500
+16 La 1.0
+14
+08
+La
+12 T
+r La
+5 10 Ed * 06
+Es L Es
+£ * Ea
+E) i L =
+e 1 2 04
+=
+56
+4 02
+2
+00 .
+acquired cosed acquired dosed
+status status
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+1.0
+
+08
+
+goy
+o
+-
+
+is_othercates
+
+E
+Lo
+
+has_roundA
+o
+=
+
+02
+
+08
+
+bd
+>
+
+has_roundD
+
+o
+>
+
+0.2
+
+acquired
+
+status
+
+has_roundA
+
+closed
+
+acquired closed
+status
+has_roundD
+. .
+acquired closed
+status
+
+14/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [21]: 4 Get the names of all columns with data type 'int'
+int_vars = df.select dtypes(include=["int"', 'float']).columns.tolist()
+
+* Create a figure with subplots
+num_cols = len(int_vars)
+
+num_rows = (num_cols + 2) // 3 £% To make sure there are enough rows for the subplots
+fig, axs = plt.subplots(nrows=num rows, ncols=3, figsize=(15, 5*num_rows))
+
+axs = axs.flatten()
+
+* Create a histogram for each integer variable
+
+for i, var in enumerate(int_vars):
+df[var].plot.hist(ax=axs[1])
+axs[i].set_title(var)
+
+* Remove any extra empty subplots if needed
+if num_cols < len(axs):
+for i in range(num_cols, len(axs)):
+fig.delaxes(axs[i])
+
+* Adjust spacing between subplots
+fig.tight layout()
+
+4 Show plot
+plt.show()
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 15/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 16/44
+8/23/23, 11:44 PM
+
+g
+
+Frequency
+3
+
+o
+
+0.04
+
+Frequency
+o
+ES
+S
+
+>
+Ss
+
+Frequency
+3
+
+E
+
+ES
+
+o
+
+8 BEE:
+
+Frequency
+
+Es
+
+E
+
+o
+
+juency
+
+Tarn
+
+a Vlora
+25 30 35 40 45 50
+
+latitude
+
+55
+
+founded_at
+
+0.2 0.4 0.6 0.8
+
+last_funding_at
+
+2002
+
+2004 2006 2008 2010 2012
+age_first_milestone_year
+o 10 20
+funding_rounds
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+Startup Success Prediction - Jupyter Notebook
+
+500
+
+Frequency
+8
+)
+
+8
+
+Frequency
+
+25
+
+o
+
+Frequency
+8
+
+8
+
+100
+
+300
+
+Frequency
+E 8
+
+Es
+
+5
+
+o
+
+600
+
+quency
+
+—120
+
+2002
+
+longitude
+—-100 —80 —60 40 —20 o
+cosed_at
+2004 2006 2008 2010 2012
+age_first funding_year
+E
+5 o 5 10 15 20
+
+age_last_milestone_year
+
+5 o 5 10 15 20
+
+funding_total_usd
+
+Frequency
+8
+
+8
+
+Frequency
+8
+
+Frequency
+e 83
+
+8
+
+8
+
+Frequency
+8
+
+8
+
+o
+25
+
+quency
+
+0.0
+
+02
+
+labels
+
+04 06
+
+first funding_at
+
+08
+
+2000 2002 2004 2006 2008 2010
+
+age_last_funding_year
+
+relationships
+
+milestones
+
+2012
+
+17/44
+8/23/23, 11:44 PM
+
+Fre
+
+3
+
+1,
+- "
+0 a
+Z 4 6 8
+
+Frequency
+8
+
+8
+
+Es
+
+Frequency
+8
+
+04 06 08
+
+is_web
+
+Frequency
+8
+
+04 06 08
+
+is_advertising
+
+Es
+
+Frequency
+El
+
+04 06 08
+
+700
+600
+500
+300
+200
+100
+
+o
+
+ie hintarh
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+10
+
+q Sarup Success Prediction - Jupyter Notebook
+
+800
+
+700
+
+600
+
+Frequency
+
+o
+
+500
+
+Frequency
+8
+
+8
+
+Es
+
+Lo
+
+Frequency
+8 8E
+
+88
+
+100
+
+o
+
+600
+
+Frequency
+8
+
+04 06
+
+is_otherstate
+
+04 06
+
+is_mobile
+
+04 06
+
+is_gamesvideo
+
+04 06
+
+le ranenitina
+
+08
+
+08
+
+08
+
+08
+
+1e9
+
+e
+
+Frequency
+
+Frequency
+
+Frequency
+
+Frequency
+8
+
+100
+
+3
+
+o
+
+8
+
+8
+
+8
+
+8
+
+8
+
+Mm a
+o 2 4 6
+
+0.0
+
+02
+
+04 06
+
+is_software
+
+04 0.6
+
+is_enterprise
+
+04 06
+
+is_ecommerce
+
+04 0.6
+
+le ntharratonan:
+
+08
+
+08
+
+08
+
+08
+8/23/23, 11:44 PM
+
+800
+
+600
+
+Frequency
+8
+
+o
+
+8
+
+Frequency
+g
+
+o
+
+8
+
+Frequency
+8
+
+Es
+
+o
+
+8
+
+Frequency
+8
+
+o
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+0.0 02
+00 02
+0.0 02
+
+25
+
+04
+0.
+
+4
+
+0.6
+
+has_VC
+
+06
+
+has_roundB
+
+04
+
+avg_ participants
+
+75 10.0
+
+0.6
+
+08
+
+08
+
+08
+
+125
+
+15.0
+
+Frequency
+5
+Ss
+
+Frequency
+
+Frequency
+
+Frequency
+
+Startup Success Prediction - Jupyter Notebook
+
+19_vuriouINy
+
+8
+
+E
+
+8
+
+8
+
+E
+
+8
+
+8
+
+00
+
+02
+
+02
+
+02
+
+02
+
+04 06
+has_angel
+04 06
+has_roundCG
+04 06
+is_top500
+04 06
+
+08
+
+08
+
+08
+
+08
+
+600
+
+8
+
+Frequency
+8
+
+Frequency
+8 8
+
+Frequency
+
+00
+0.0
+00
+
+02
+
+02
+
+02
+
+12_vIISIUaIS yu y
+
+04
+
+06
+
+has_roundA
+
+04
+
+06
+
+has_roundD
+
+04
+
+06
+
+08
+
+08
+
+08
+
+19/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [22]: %4 Get the names of all columns with data type 'int'
+int_vars = df.select dtypes(include=["'int', 'float']).columns.tolist()
+
+* Create a figure with subplots
+num_cols = len(int_vars)
+
+num_rows = (num_cols + 2) // 3 £% To make sure there are enough rows for the subplots
+fig, axs = plt.subplots(nrows=num rows, ncols=3, figsize=(15, 5*num_rows))
+
+axs = axs.flatten()
+
+* Create a histogram for each integer variable with hue='Attrition"
+for i, var in enumerate(int_vars):
+sns.histplot(data=df, x=var, hue='status", kde=True, ax=axs[i])
+axs[i].set_title(var)
+
+* Remove any extra empty subplots if needed
+if num_cols < len(axs):
+for i in range(num_cols, len(axs)):
+fig.delaxes(axs[i])
+
+* Adjust spacing between subplots
+fig.tight layout()
+
+4 Show plot
+plt.show()
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 20/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 21/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+latitude longitude labels
+350 status 600 status
+me acquired E acquired
+=== dosed == closed
+300 500
+250
+400
+E E
+= =
+3 Lo] 300
+150
+200
+100
+50 100
+8 [ist 5
+-120 -100 —€60 —E0 —Q0 —o o 20 0.0 0.2 04 0.6 0.8 1.0
+latitude longitude labels
+0 founded at closed_at first funding_at
+status
+mu acquired
+100 m= dosed "0
+08
+80 80
+06
+E e E.
+e) e)
+04
+40 40
+02 20 20
+00 o — o
+0.0 02 04 06 06 10 2002 2004 2006 2008 2010 2012 2000 2002 2004 2006 2008 2010 2012
+cosed_at first_funding_at
+last_funding_at age_first_funding_year age_last_funding_year
+120
+100 100
+Ei 80
+E E
+3 60 E
+ó e)
+40 40
+20 20
+o o -
+2002 2004 2006 2008 2010 12012 —10 5 o 5 10 15 20 o 5 La 5 10 15 20
+last_funding_at age_first_funding_year age_last_funding_year
+age first milestone year age last milestone year relationships
+80
+Ls status status status
+us acquired mu acquired me acquired
+70 =— dosed 7a =— closed 100 =—— dosed
+60
+80
+50
+E E
+60
+= =
+39 e)
+a 40
+20
+20
+10
+o = me — o
+—10 o 10 20 5 o 5 10 15 20 25 o 10 20 30 40 50 60
+age_first_milestone_year age_last_milestone_year relationships
+funding_rounds funding_total_usd milestones
+
+status 160 status 175
+
+status
+mu acquired mu acquired mu acquired
+=== dosed 140 E dosed == dosed
+150 150
+120
+125 125
+100
+100 E E 100
+5 5
+8» e)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 22/44
+
+Count
+8/23/23, 11:44 PM
+
+75
+
+Count
+
+100
+
+Count
+
+200
+
+Count
+
+200
+
+200
+
+6 8 10
+funding_rounds
+
+is_CA
+
+—m=
+04 06 08 1.0
+is_TX
+is_web
+status
+== acquired
+== closed
+04 06 08 1.0
+is_web
+
+is_advertising
+
+0.4 0.6 0.8 1.0
+is_advertising
+
+is_biotech
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+Startup Success Prediction - Jupyter Notebook
+
+500
+
+400
+
+300
+
+Count
+
+200
+
+100
+
+400
+
+Count
+
+200
+
+500
+
+400
+
+Count
+
+500
+
+400
+
+300
+
+Count
+
+200
+
+100
+
+2 3
+funding_total_usd
+is_NY
+
+1e9
+
+75
+
+o
+
+4 6 8
+milestones
+
+is_MA
+
+0.0
+
+00
+
+00
+
+0.2
+
+02
+
+0.4 0.6
+is_NY
+
+is_otherstate
+
+0.4 06
+is_otherstate
+
+is_mobile
+
+04
+is_mobile
+
+is_gamesvideo
+
+0.8 1.0
+
+0.8 10
+
+status
+ma acquired
+== dosed
+
+06 08 10
+
+0.0
+
+0.2
+
+0.4 0.6
+is_gamesvideo
+
+is_consulting
+
+0.8 1.0
+
+400
+
+Count
+
+400
+
+Count
+
+600
+
+Count
+E
+
+0.0
+
+00
+
+02
+
+02
+
+0.4 0.6 0.8 1.0
+is_MA
+is_software
+status
+mus acquired
+E dosed
+04 06 0.8 10
+is_software
+is_enterprise
+status
+mu acquired
+=== dosed
+
+04 06 08 1.0
+is_enterprise
+
+is_ecommerce
+
+0.0
+
+0.2
+
+0.4 0.6 0.8 1.0
+is_ecommerce
+
+is_othercategory
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+suu 19uU
+status status status
+400
+ms acquired ms acquired mus acquired
+500 == dosed 1200 == dosed === dosed
+350
+1000 300
+400
+800 250
+5 5 5
+300
+e) e) O 200
+600
+200 150
+400
+100
+100
+200
+50
+o —e o | 0
+0.0 0.2 0.4 0.6 0.8 1.0 0.0 0.2 0.4 0.6 0.8 1.0 0.0 0.2 04 0.6 0.8 1.0
+is_consulting is_othercategory
+has_angel has_roundA
+400
+350 10
+300
+300
+250
+E E
+= 5
+6 200 o)
+200
+150
+100
+50
+o o
+00 02 04 06 08 1.0 00 02 04 06 08 1.0 00 02 04 06 08 1.0
+has_VC has_angel has_roundA
+has_roundB has_roundC has_roundD
+status status
+300 400 m=— acquired 0 == acquired
+mun dosed mun Cdosed
+350
+250 400
+300
+200
+> > 250 > 300
+E E E
+5 5 El
+6 150 e) 200 e)
+200
+150
+100
+100
+si status do
+mu acquired 50
+ms dosed
+o o o
+00 02 04 06 08 1.0 00 02 04 06 08 1.0 00 02 04 06 08 1.0
+has_roundB has_roundC has_roundD
+avg_participants is_top500
+status status
+120 ms acquired 500 EE acquired
+== cosed == dosed
+100 400
+80
+E E 300
+= =
+E 8
+200
+40
+100
+20
+; E —. kE
+25 5.0 75 10.0 12.5 15.0 0.0 0.2 0.4 0.6 0.8 1.0
+
+avg_participants is_top500
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 24/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [24]: %4 Specify the maximum number of categories to show individual Ly
+max_categories = 5
+
+* Filter categorical columns with 'object' data type
+cat_cols = [col for col in df.columns if df[col].dtype == 'object']
+
+* Create a figure with subplots
+
+num_cols = len(cat_cols)
+
+num_rows = (num cols + 2) // 3
+
+fig, axs = plt.subplots(nrows=num rows, ncols=3, figsize=(15, 5*num_rows))
+
+* Flatten the axs array for easier indexing
+axs = axs.flatten()
+
+* Create a pie chart for each categorical column
+for i, col in enumerate(cat_cols):
+if i< len(axs): x* Ensure we don't exceed the number of subplots
+* Count the number of occurrences for each category
+cat_counts = df[col].value_counts()
+
+* Group categories beyond the top max_categories as 'Other'
+
+if len(cat_counts) > max_categories:
+cat_counts_top = cat_counts[:max_categories]
+cat_counts_other = pd.Series(cat_counts[max_categories:].sum(), index=["'Other"1)
+cat_counts = cat_counts_top.append(cat_counts_other)
+
+* Create a pie chart
+axs[i].pie(cat_counts, labels=cat_counts.index, autopct='%1.1f%%', startangle=90)
+axs[i].set_title(f'ícol) Distribution")
+
+* Remove any extra empty subplots if needed
+if num_cols < len(axs):
+for i in range(num_cols, len(axs)):
+fig.delaxes(axs[i])
+
+* Adjust spacing between subplots
+fig.tight_layout()
+
+* Show plot
+p1t.show()
+
+C:VUsers qWMichael VAppData Vocal VNTempNipykernel1_91612023955865.py:25: FutureWarning: The series.append method i
+s deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+
+cat_counts = cat_counts_top.append(cat_counts_other)
+C: Users qWMichael VAppDataVLocal VTempVipykernel_91612023955865.py:25: FutureWarning: The series.append method i
+s deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+
+cat_counts = cat_counts_top.append(cat_counts_other)
+C:VUsers qWMichael VAppDataVLocal VTempNipykernel1_91612023955865.py:25: FutureWarning: The series.append method i
+deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+cat_counts = cat_counts_top.append(cat_counts_other)
+
+1.)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 25/44
+8/23/23, 11:44 PM
+
+In [25]:
+
+Out[25]:
+
+In [26]:
+
+In [27]:
+
+Out[27]:
+
+In [28]:
+
+In [29]:
+
+out[29]:
+
+Startup Success Prediction - Jupyter Notebook
+
+state_code Distribution state_code. 1 Distribution status Distribution
+
+Other
+closed
+acquired
+
+category_segment Distribution
+
+Other
+
+Other
+
+- Entertainment
+
+Science 4 Health
+
+Technology
+
+Business
+
+Data Preprocessing Part 2
+
+* Check the amounnt of missing value
+check missing = df.isnull().sum() * 100 / df.shape[6]
+check _missing[check missing > 0].sort_values(ascending=False)
+
+founded_at 100.0000800
+closed_at 63.705309
+age_first_milestone_year 16.468039
+age_last_milestone_year 16.468039
+state_code.1 0.108342
+
+dtype: floate4
+
+4 Remove founded at and closed at column because the null value is higher than 30%
+df.drop(columns = ['founded at', 'closed_at'], inplace=True)
+
+4 Drop null value in state_code.1 column because the null value only 0.1%
+df.dropna(subset="state_code.1', inplace=True)
+
+$4 Check the amounnt of missing value
+check missing = df.isnull().sum() * 100 / df.shape[8]
+check missing[check missing > 0].sort_values(ascending=False)
+
+age first milestone year 16.4859
+age_last_milestone_year 16.4859
+dtype: float64
+
+* Fill age first_milestone year and age last milestone year with mean because the bar chart diagram is balancet
+df['age_first milestone year'].Ffillna(df['age first milestone_year'].mean(), inplace=True)
+df[ 'age_last milestone_year'].Fillna(df['age_last milestone year'].mean(), inplace=True)
+
+$4 Check the amounnt of missing value
+check missing = df.isnull().sum() * 100 / df.shape[é]
+check _missing[check missing > 0].sort_values(ascending=False)
+
+Series([], dtype: float64)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 26/44
+8/23/23, 11:44 PM
+
+In [30]:
+
+In [31]:
+
+Startup Success Prediction - Jupyter Notebook
+
+Label Encoding for Object Datatypes
+
+* Loop over each column in the DataFrame where dtype is 'object'
+for col in df.select dtypes(include=["'object"]).columns:
+
+* Print the column name and the unique values
+print(F"(col): fdf[col].unique()3")
+
+state_code: ['CA' 'MA" 'Ky' 'NY' "CO" 'VA' 'TX' "WA" "IL" 'NC' "PA" 'GA" "NH" 'MO'
+"FL' NJ" WVW' "MI" "DC" "CT' "MD' "OH" 'TN' "MN" 'RI" 'OR” 'UT' "ME"
+"NV" "NM" 'IN' "AZ" 'ID' 'AR' 'WI']
+
+state_code.1: ['CA" 'MA' 'Ky' "NY" "CO" "VA" 'TX' "MA" "IL' "NC" "PA" 'GA" "NH" 'MO'
+"FL' "NJ" 'WW' "MI" "DC' 'CT' 'MD' OH" 'TN' "MN" CRI" "OR" UT" "ME"
+"NV "NM" IN' AZ" 'ID' 'AR' 'WI']
+
+status: ['acquired' 'closed']
+
+category_segment: ['Entertainment" 'Technology' 'Business" "Education 8 PR' "Other'
+"Lifestyle" 'Consulting 8 Analytics" "Science 8% Health']
+
+from sklearn import preprocessing
+
+* Loop over each column in the DataFrame where dtype is 'object'
+for col in df.select_dtypes(include=["'object"'1]).columns:
+
+4 Initialize a LabeLEncoder object
+label _encoder = preprocessing. LabelEncoder()
+
+* Fit the encoder to the unique values in the column
+label_encoder.fit(df[col].unique())
+
+* Transform the coLumn using the encoder
+df[col] = label encoder .transform(df[col])
+
+* Print the column name and the unique encoded values
+print(F"(col): f(df[col].unique()3")
+
+state_code: [ 2 12 11 23 3 31 29 32 91826 7 1917 6203415 5 4 13 24 28 16
+27 25 30 14 22 21 18 1 8 8 33]
+
+state_code.1: [ 2 12 11 23 3 31 29 32 91826 7 1917 62803415 5 413 24 28 16
+27 25 30 14 222110 1 8 6 33]
+
+status: [8 1]
+
+category _segment: [37025416]
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+27/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [32]: *4 Correlation Heatmap
+plt.figure(figsize=(40, 32))
+sns.heatmap(df.corr(), fmt=".28', annot=False)
+
+Out[32]: <AxesSubplot:>
+
+E
+Ser fino at
+Tot nda et
+oe st Ana
+re
+Arno tel ved
+:
+ento
+meca
+
+cos let mision
+
+In [33]: df.drop(columns = ['state code.1', 'labels'], inplace=True)
+df.shape
+
+Out[33]: (922, 38)
+
+Train Test Split
+
+In [34]: X = df.drop( status", axis=1)
+
+df['status']
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.metrics import accuracy score
+
+X train, X test, y train, y test = train test_split(X,y, test_size=0.2,random_state=0)
+
+Remove Outlier from Train Data using Z-Score
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 28/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [36]: from scipy import stats
+
+* Define the columns for which you want to remove outliers
+
+selected_columns = ['first_funding_at', 'age_first milestone year', 'age last milestone_year"',
+'age_first_funding_year"', 'age last funding year", 'relationships"', 'funding_total_usd',
+'avg_participants']
+
+* Calculate the Z-scores for the selected columns in the training data
+z_scores = np.abs(stats.zscore(X train[selected_columns]))
+
+* Set a threshold value for outlier detection (e.g., 3)
+threshold = 3
+
+4 Find the indices of outliers based on the threshold
+outlier_ indices = np.where(z_scores > threshold)[6]
+
+4 Remove the outliers from the training data
+X train = X train.drop(X train.indexfoutlier_indices])
+y_train = y train.drop(y train.index[outlier indices])
+
+Decision Tree Classifier
+
+In [37]: from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_ selection import GridSearchCV
+dtree = DecisionTreeClassifier (class _weight="balanced")
+param_grid = £
+"max_depth": [3, 4, 5, 6, 7, 8],
+'min_samples_split": [2, 3, 41,
+"min_samples_leaf": [1, 2, 3, 4],
+"random_state": [8, 42]
+D;
+
+* Perform a grid search with cross-validation to find the best hyperparameters
+grid_search = GridSearchCV(dtree, param grid, cv=5)
+grid_search.fit(X_ train, y train)
+
+* Print the best hyperparameters
+print(grid_search.best_params_)
+
+('max_depth': 4, 'min_samples_leaf': 2, 'min_samples_split': 2, 'random_state': €)
+
+In [38]: from sklearn.tree import DecisionTreeClassifier
+dtree = DecisionTreeClassifier (random_state=0, max_depth=4, min_ samples _leaf=2, min_samples_split=2, class _weii
+dtree.fit(X train, y train)
+
+Out[38]: DecisionTreeClassifier(class weight='balanced', max_depth=4, min_samples_leaf=2,
+random_state=0)
+
+In [39]: from sklearn.metrics import accuracy score
+y_pred = dtree.predict(X test)
+print("Accuracy Score :", round(accuracy_score(y_test, y pred)*100 ,2), "%")
+
+Accuracy Score : 73.51 %
+
+In [40]: from sklearn.metrics import accuracy score, f1_score, precision_score, recall_score, jaccard_score, log loss
+print('F-1 Score : ',(f1_score(y test, y _pred, average="'micro")))
+print('Precision Score : ',(precision_score(y test, y pred, average="micro")))
+print('Recall Score : ',(recall_score(y test, y pred, average="'micro")3)
+print('Jaccard Score : ',(jaccard_score(y_test, y_pred, average="micro"')))
+print('Log Loss : ',(log loss(y test, y pred)))
+
+F-1 Score : 06.7351351351351352
+Precision Score : 6.7351351351351352
+Recall Score : $6.7351351351351352
+Jaccard Score : 0.5811965811965812
+Log Loss : 9.148207751846043
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 29/44
+8/23/23, 11:44 PM
+
+In [41]:
+
+Startup Success Prediction - Jupyter Notebook
+
+imp_df = pd.DataFrame(f
+"Feature Name": X_train.columns,
+"Importance": dtree.feature_importances_
+
+»
+
+fi = imp_df.sort_values(by="Importance", ascending=False)
+
+fi2 = fi.head(18e)
+
+plt.figure(figsize=(10,8))
+
+sns.barplot(data=fi2, x="Importance", y='Feature Name")
+
+plt.title('Top 10 Feature Importance Each Attributes (Decision Tree)", fontsize=18)
+plt.xlabel ('Importance', fontsize=16)
+
+plt.ylabel ("Feature Name', fontsize=16)
+
+plt.show()
+
+Top 10 Feature Importance Each Attributes (Decision Tree)
+
+ERE a ;;o;oMEMTMUY
+
+age last funding year
+milestones
+funding_total_usd
+longitude
+
+age last milestone year
+
+Feature Name
+
+age_first_milestone_year
+latitude
+has_roundA
+
+is_ biotech
+
+0.2 0.3 D.4 0.5 D.6
+Importance
+
+o.
+
+[=]
+==
+E;
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+30/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [42]: import shap
+explainer = shap.TreeExplainer(dtree)
+shap_values = explainer.shap_values (X_test)
+shap. summary_plot (shap_values, X test)
+
+relationships — << .”,.,.—————————
+
+age last funding_year —
+funding_total_usd _
+milestones — UN
+
+longitude —a
+
+age last milestone_ year ml
+
+age _first_milestone_year A
+latitude _-
+is_MA
+is_NY
+is_CA
+
+category segment
+funding_rounds
+Is_otherstate
+
+age first funding_year
+last funding_at
+
+first funding_at
+Is_TX
+
+is_software
+
+is_top500 ms Class 1
+mus Class 0
+
+LU LI LU LU LI LU LI LU
+0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35
+mean(|SHAP valuel) (average impact on model output magnitude)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 31/44
+8/23/23, 11:44 PM
+
+In [43]: 4 compute SHAP values
+
+explainer = shap.TreeExplainer(dtree)
+
+Startup Success Prediction - Jupyter Notebook
+
+shap_values = explainer.shap_values (X_test)
+shap. summary_plot (shap_values[1], X test.values, feature names = X_test.columns)
+
+relationships
+
+age last funding_year
+funding_total_usd
+milestones
+
+longitude
+
+age last milestone year
+age_first_milestone year
+latitude
+
+is_MA
+
+is_NY
+
+is_CA
+
+category segment
+funding_rounds
+Is_otherstate
+
+age first funding_year
+
+last funding_at
+
+first funding_at
+
+is_TX
+
+is_software
+
+is_top500
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+»i 0 0.8 Dotg cmo cas + Ue me
+
+119 - - . a . .. . .
+
+e ae fo ..
+
+. e... opopeo. .
+
+. .- Y
+
+,
+-
+
++
+El 8. —-
+1 1 1 1
+0.2 0.0 0.2 0.4
+
+SHAP value (impact on model output)
+
+High
+
+Feature value
+
+32/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [44]: from sklearn.metrics import confusion_matrix
+cm = confusion matrix(y test, y pred)
+plt.figure(figsize=(5,5))
+sns.heatmap(data=cm, linewidths=.5, annot=True, cmap = 'Blues')
+plt.ylabel ( 'Actual label")
+plt.xlabel('Predicted label")
+
+all_sample_ title = 'Accuracy Score for Decision Tree: (0)'.format(dtree.score(X test, y test))
+plt.title(all_sample_title, size = 15)
+
+Out[44]: Text(0e.5, 1.0, "Accuracy Score for Decision Tree: 6.7351351351351352')
+
+Accuracy Score for Decision Tree: 0.7351351351351352
+
+90
+
+23 80
+
+Actual label
+
+Predicted label
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 33/44
+8/23/23, 11:44 PM
+
+In [45]:
+
+Out[45]:
+
+In [46]:
+
+Startup Success Prediction - Jupyter Notebook
+
+from sklearn.metrics import roc_curve, roc_auc_score
+y_pred_proba = dtree.predict_proba(X test)[:][:,1]
+
+df_actual_predicted = pd.concat([pd.DataFrame(np.array(y_ test), columns=['y actual"']), pd.DataFrame(y pred_prol
+df actual predicted.index = y test.index
+
+fpr, tpr, tr = roc curve(df_ actual predicted['y actual'], df actual _predicted['y pred proba'])
+auc = roc_auc_score(df_actual predicted['y actual'], df_actual_predicted['y_pred_proba'1)
+
+plt.plot(fpr, tpr, label="AUC = %80.4f" %auc)
+plt.plot(fpr, fpr, linestyle = '--', color="k")
+plt.xlabel('False Positive Rate")
+plt.ylabel('True Positive Rate')
+
+plt.title('ROC Curve", size = 15)
+
+plt.legend()
+
+<matplotlib, legend. Legend at 0x27702eda310>
+
+ROC Curve
+
+10 —— AUC=07596
+
+0.8
+
+0.6
+
+0.4
+
+True Positive Rate
+
+0.2
+
+0.0
+
+0.0 0.2 0.4 0.6 0.8 1.0
+False Positive Rate
+
+Random Forest Classifier
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model selection import GridSearchCV
+rfc = RandomForestClassifier(class_weight="balanced")
+param_ grid = £
+"n estimators": [100, 200],
+"max_depth": [None, 5, 180],
+'max_features"': ['sgrt', 'log2', None],
+"random_state": [80, 42]
+>
+
+* Perform a grid search with cross-validation to find the best hyperparameters
+grid_search = GridSearchCV(rfc, param_grid, ecv=5)
+grid_search.fit(X_ train, y train)
+
+* Print the best hyperparameters
+print(grid_search.best_params_)
+
+('max_depth": 10, 'max_features": None, 'n_estimators": 100, 'random_state': 42)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 34/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [47]: from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(random_state=42, max depth=10, max features=None, n_estimators=100, class weight=
+rfc.fit(X train, y train)
+
+Out[47]: RandomForestClassifier(class weight='balanced', max depth=10, max_features=None,
+random_state=42)
+
+In [48]: y pred = rfc.predict(X test)
+print("Accuracy Score :", round(accuracy score(y test, y pred)*180e ,2), "%")
+
+Accuracy Score : 77.3 %
+
+In [49]: from sklearn.metrics import accuracy score, f1_score, precision_score, recall_score, jaccard_score, log_loss
+print('F-1 Score : ',(f1_score(y test, y pred, average="'micro")))
+print('Precision Score : ',(precision_score(y test, y pred, average="'micro")))
+print('Recall score : ',(recall_score(y test, y pred, average="'micro"3))
+print('Jaccard Score : ',(jaccard score(y test, y pred, average="micro')3)
+print('Log Loss : ',(log loss(y test, y pred)))
+
+F-1 Score : 6.772972972972973
+Precision Score : 60.772972972972973
+Recall Score : 6.772972972972973
+Jaccard Score : 60.6299559471365639
+Log Loss : 7.841287587867087
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 35/44
+8/23/23, 11:44 PM
+
+In [50]:
+
+Startup Success Prediction - Jupyter Notebook
+
+imp_df = pd.DataFrame(f
+"Feature Name": X_train.columns,
+"Importance": rfc.feature_importances_
+
+»
+
+fi = imp_df.sort_values(by="Importance", ascending=False)
+
+Fi2 = fi.head(10)
+plt.fFigure(figsize=(10,8))
+
+sns.barplot(data=fi2, x="Importance", y='Feature Name")
+
+plt.title('Top 180 Feature Importance Each Attributes (Random Forest)", fontsize=18)
+plt.xlabel ('Importance', fontsize=16)
+
+plt.ylabel ('Feature Name', fontsize=16)
+
+plt.show()
+
+Top 10 Feature Importance Each Attributes (Random Forest)
+
+relationships
+
+funding_total_usd
+
+age last funding_year
+
+age_last_milestone year
+
+longitude
+
+age first milestone year
+
+Feature Name
+
+age_first_funding_year
+latitude
+avg_participants
+
+milestones
+
+0.05 0.10 0.15 0.20 0.25
+Importance
+
+[o)
+
+o
+[=>]
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+36/44
+8/23/23, 11:44 PM
+
+In [51]: import shap
+
+Startup Success Prediction - Jupyter Notebook
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values (X_test)
+shap. summary_plot (shap_values, X test)
+
+relationships
+
+age last funding_year
+funding_total_usd
+
+age last milestone year
+avg_participants
+milestones
+
+age _first_milestone_year
+age_first funding_year
+longitude
+
+latitude
+
+funding_rounds
+category segment
+first funding_at
+last_funding_at
+is_top500
+
+state_code
+
+Is_software
+
+Is_ofherstate
+
+has_vc |
+is_NY | ms Class 1
+mun Class 0
+1 1 1 1 1 1 1 [|
+0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35
+
+mean(|SHAP valuel) (average impact on model output magnitude)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+37/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [52]: 4 compute SHAP values
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values (X_test)
+shap. summary_plot (shap_values[1], X test.values, feature names = X_test.columns)
+
+High
+relationships Et ó% | ME = de 0 UB
+age last funding year <<. .. ..
+funding_total_usd .... «Boa
+age last milestone_year - o
+avg_participants . a .
+milestones e
+age_ first milestone year .. e
+age first funding year L - ..
+longitude .. ei
+latitude . caja -
+funding_rounds . > ...
+category segment ”
+first_funding_at . +
+last funding_at -—.
+is_top500 4
+state_code A
+is_software o
+is_otherstate -
+has_VC E
+is_NY --
+| E, e
+
+LU LU LI
+03 —€02 —O1 00 ol 02 03 04
+SHAP value (impact on model output)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+Feature value
+
+38/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [53]: from sklearn.metrics import confusion matrix
+cm = confusion matrix(y test, y pred)
+plt.figure(figsize=(5,5))
+sns.heatmap(data=cm, linewidths=.5, annot=True, cmap = 'Blues')
+plt.ylabel( 'Actual label")
+plt.xlabel('Predicted label")
+
+all_sample_ title = 'Accuracy Score for Random Forest: (0)'.format(rfc.score(X test, y test))
+plt.title(all_sample_title, size = 15)
+
+Out[53]: Text(0e.5, 1.0, "Accuracy Score for Random Forest: 6.772972972972973')
+
+Accuracy Score for Random Forest: 0.772972972972973
+
+100
+o 1.1e+02 12
+80
+A
+-
+s
+= 60
+>
+<
+— 40
+- 30 35
+-20
+0 1
+
+Predicted label
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 39/44
+8/23/23, 11:44 PM
+
+In [54]:
+
+Out[54]:
+
+In [55]:
+
+Startup Success Prediction - Jupyter Notebook
+
+from sklearn.metrics import roc_curve, roc_auc_score
+y_pred_proba = rfc.predict proba(X test)[:][:,1]
+
+df_actual_predicted = pd.concat([pd.DataFrame(np.array (y test), columns=['y actual']), pd.DataFrame(y pred_prol
+df actual predicted.index = y test.index
+
+fpr, tpr, tr = roc curve(df_ actual predicted['y actual'], df actual _predicted['y pred proba'])
+auc = roc_auc_score(df_actual predicted['y actual'], df_actual_predicted['y_pred_proba'])
+
+plt.plot(fpr, tpr, label="AUC = %80.4f" %auc)
+plt.plot(fpr, fpr, linestyle = '--", color="k")
+plt.xlabel('False Positive Rate")
+plt.ylabel('True Positive Rate')
+
+plt.title('ROC Curve", size = 15)
+
+plt.legend()
+
+<matplotlib, legend. Legend at 0x27705917a60>
+
+ROC Curve
+
+10 —— AuUC=07971
+
+0.8
+
+0.6
+
+0.4
+
+True Positive Rate
+
+0.2
+
+0.0
+
+0.0 0.2 0.4 0.6 0.8 1.0
+False Positive Rate
+
+XGBoost Classifier
+
+from sklearn.model_selection import GridSearchCv
+from xgboost import XGBClassifier
+
+* Create an XGBoost classifier
+xgb = XaBClassifier()
+
+* Define the parameter grid for grid search
+
+param_grid = £
+'n_estimators": [100, 200],
+"max_depth": [3, 5, 7],
+"learning_rate': [0.1, 0.01, 0.001],
+"gamma": [8, 80.1, 0.2]
+
+)
+
+4 Perform a grid search with cross-validation to find the best hyperparameters
+grid_search = GridSearchCV(xgb, param_grid, cv=5)
+grid_search.fit(X train, y train)
+
+* Print the best hyperparameters
+print(grid_search.best_params_)
+
+('gamma': 60.2, 'learning_rate': 6.1, 'max depth": 7, 'n_estimators": 100)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 40/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [56]: from xgboost import XaBClassifier
+xgb = XaBClassifier(gamma=0.2, learning_rate=0.1, max depth=7, n_estimators=100)
+xgb.fit(X train, y train)
+
+Out[56]: XGBClassifier(base_score=None, booster=None, callbacks=None,
+colsample_bylevel=None, colsample_bynode=None,
+colsample_bytree=None, early _stopping_rounds=None,
+enable_categorical=False, eval metric=None, feature types=None,
+gamma=0.2, gpu_id=None, grow policy=None, importance type=None,
+interaction_constraints=None, learning_rate=0.1, max_bin=None,
+max_cat_threshold=None, max_cat_to_onehot=None,
+max_delta_step=None, max depth=7, max leaves=None,
+min_child weight=None, missing=nan, monotone_constraints=None,
+n_estimators=100, n_jobs=None, num_parallel tree=None,
+predictor=None, random_state=None, ...)
+
+In [57]: from sklearn.metrics import accuracy_score
+y_pred = xgb.predict(X test)
+print("Accuracy Score :", round(accuracy_score(y test, y pred)*160 ,2), "%")
+
+Accuracy Score : 74.05 %
+
+In [58]: from sklearn.metrics import accuracy score, f1_score, precision_score, recall_score, jaccard_score, log loss
+print('F-1 Score : ',(f1_score(y test, y pred, average="micro')))
+print('Precision Score : ',(precision_score(y test, y pred, average="micro')))
+print('Recall Score : ',(recall_score(y test, y pred, average="micro")3)
+print('Jaccard Score : ',(jaccard_score(y test, y _pred, average="micro")))
+print('Log Loss : ',(log loss(y test, y pred)))
+
+F-1 Score : 6.7405405405465405
+Precision Score : 8.7405405485405485
+Recall Score : 6.7405405405405405
+Jaccard Score : 0.5879828326180258
+Log Loss : 8.961494374631819
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 41/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [59]: import shap
+explainer = shap.TreeExplainer (xgb)
+shap_values = explainer.shap_values (X_test)
+shap. summary_plot (shap_values, X test)
+
+ntree_limit is deprecated, use “iteration_range” or model slicing instead,
+High
+relationships . = fabes .. . . cmepmgo.
+funding_total_usd . -SEarea
+age last funding year Bhe>->— .
+age last milestone year e 000 == ls de «BEN -.
+funding_rounds . » name .
+longitude Le o .
+latitude pr
+age first funding_year e -.
+
+avg_ participants ..
+
+*
+
+miestones
+
+.
+Feature value
+
+AAA:
+
+age _first_milestone year
+category segment
+Is_top500
+
+first funding_at
+has _VC
+state_code
+
+last funding_at
+is_otherstate
+iIs_mobile
+has_angel
+
+! 1 1 Low
+
+2 " 1 2 3
+SHAP value (impact on model output)
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 42/44
+8/23/23, 11:44 PM Startup Success Prediction - Jupyter Notebook
+
+In [60]: from sklearn.metrics import confusion_matrix
+cm = confusion matrix(y test, y pred)
+plt.figure(figsize=(5,5))
+sns.heatmap(data=cm, linewidths=.5, annot=True, cmap = 'Blues')
+plt.ylabel('Actual label")
+plt.xlabel('Predicted label")
+
+all_sample_ title = 'Accuracy Score for XGBoost: (0)>'.format(xgb.score(X test, y test))
+plt.title(all_sample_title, size = 15)
+
+Out[69]: Text(0.5, 1.0, "Accuracy Score for XGBoost: 0.7405405405405405')
+
+Accuracy Score for XGBoost: 0.7405405405405405
+100
+
+90
+
+[=] 19 80
+
+Actual label
+
+Predicted label
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb 43/44
+8/23/23, 11:44 PM
+
+In [61]:
+
+Out[61]:
+
+Startup Success Prediction - Jupyter Notebook
+
+from sklearn.metrics import roc_curve, roc_auc_score
+y_pred_proba = xgb.predict proba(X test)[:][:,1]
+
+df_actual_predicted = pd.concat([pd.DataFrame(np.array(y_ test), columns=['y actual']), pd.DataFrame(y pred_prol
+df_actual_predicted.index = y test.index
+
+fpr, tpr, tr = roc curve(df_ actual predicted['y actual'], df actual _predicted['y pred proba'])
+= roc_auc_score(df_actual_predicted['y actual'], df actual predicted['y_pred_proba'])
+
+auc
+
+.plot(fpr, tpr, label="AUC = %0e.4f" %auc)
+
+.plot(fpr, fpr, linestyle = '--", color="k')
+.Xlabel('False Positive Rate")
+
+.ylabel('True Positive Rate")
+
+.title('ROC Curve', size = 15)
+
+.legend()
+
+<matplotlib. legend. Legend at 80x2770069fd0e>
+
+True Positive Rate
+
+1.0
+
+0.8
+
+0.6
+
+0.4
+
+0.2
+
+0.0
+
+ROC Curve
+
+— AUC=0.7803
+
+0.0 0.2 0.4 0.6 0.8 1.0
+False Positive Rate
+
+localhost:8889/notebooks/Startup Success Prediction.ipynb
+
+44/44
